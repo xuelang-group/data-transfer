@@ -1,0 +1,51 @@
+{
+  "name": "data-transfer",
+  "version": "1.0.0",
+  "description": "data transfer",
+  "main": "index.js",
+  "scripts": {
+    "lint": "./node_modules/.bin/eslint src --ext .ts",
+    "lint-fix": "./node_modules/.bin/eslint --fix --ext .ts,.js .",
+    "clean": "rm -rf dist/*",
+    "compile": "tsc",
+    "dist": "npm run clean && npm run compile",
+    "buildImage": "npm run dist && ./build.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://git@github.com/xuelang-group/data-transfer.git"
+  },
+  "author": "zhenlan.lt",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xuelang-group/data-transfer/issues"
+  },
+  "homepage": "https://github.com/xuelang-group/data-transfer#readme",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "body-parser": "^1.19.0",
+    "compressing": "^1.5.1",
+    "csvjson": "^5.1.0",
+    "csvtojson": "^2.0.10",
+    "express": "^4.17.1",
+    "express-async-handler": "^1.1.4",
+    "fs-extra": "^9.1.0",
+    "joi": "^17.4.1",
+    "lodash": "^4.17.21",
+    "multer": "^1.4.2",
+    "node-stream-zip": "^1.13.6",
+    "suanpan_node_sdk": "^1.5.7",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.12",
+    "@types/fs-extra": "^9.0.12",
+    "@types/lodash": "^4.14.170",
+    "@types/multer": "^1.4.7",
+    "@types/node": "^15.12.5",
+    "@typescript-eslint/eslint-plugin": "^4.28.2",
+    "@typescript-eslint/parser": "^4.28.2",
+    "eslint": "^7.30.0",
+    "typescript": "^4.3.4"
+  }
+}
