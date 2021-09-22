@@ -1,5 +1,7 @@
 import path from 'path';
 import { sp, Storage } from 'suanpan_node_sdk';
+import { TransferTypeEnum } from './common';
+import { initHttpServer } from './httpServer';
 import { buildOssPath, transferAxi2Json, transferCsv2Json, transferJson2Csv } from './util';
 
 console.log('node arguments:', sp.parameter);
@@ -11,17 +13,13 @@ const debug = process.env.SP_DEBUG === 'true';
 const downloadPath = '/tmp/download';
 const uploadPath = '/tmp/upload';
 
-enum TransferTypeEnum {
-    CSV2AXI = 'csv2axi',
-    AXI2CSV = 'axi2csv',
-}
-
 interface DataTransferRequest {
     transferType,
     originalFile
 }
 
 async function bootstrap(){
+    initHttpServer();
     sp.onCall( async(req, res) => {
         const message = req.msg['in1'];
         console.log(`data transfer received request: ${message}`);
@@ -48,7 +46,7 @@ async function bootstrap(){
                 const axiJson = transferAxi2Json(tmpFile);
                 console.log(`transfer to json : ${JSON.stringify(axiJson)}`);
                 transferJson2Csv(axiJson, csvFilePath);
-                ossFilePath = path.join(buildOssPath(), now, csvFileName)
+                ossFilePath = path.join(buildOssPath(), now, csvFileName);
                 await Storage.Instance.fPutObject(ossFilePath, csvFilePath);
             case TransferTypeEnum.CSV2AXI:
                 console.log('start csv to axi');
@@ -58,7 +56,7 @@ async function bootstrap(){
                 console.log(`transfer to json : ${JSON.stringify(csvJson)}`);
                 transferJson2Csv(csvJson, axiFilePath);
                 console.log(`transfer json to axi done`);
-                ossFilePath = path.join(buildOssPath(), now, axiFileName)
+                ossFilePath = path.join(buildOssPath(), now, axiFileName);
                 await Storage.Instance.fPutObject(ossFilePath, axiFilePath);
           }
     
@@ -82,7 +80,7 @@ async function bootstrap(){
 }
 
 bootstrap().catch(e => {
-    console.error(`aspenplus interface bootstrap failed: ${e.message}`);
+    console.error(`axi data transfer bootstrap failed: ${e.message}`);
     process.exit(-1);
   });
 
