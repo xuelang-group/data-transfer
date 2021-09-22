@@ -2,11 +2,10 @@ import express, { request } from 'express';
 import bodyParser from 'body-parser';
 import * as _ from 'lodash';
 import { getUploader } from './uploader';
-import { buildOssPath, transferAxi2Json, transferCsv2Json, transferJson2Csv } from './util';
+import { buildOssPath, transferAxi2Json, transferCsv2Json, transferExcel2Json, transferJson2Csv } from './util';
 import path from 'path';
 import { sp, Storage } from 'suanpan_node_sdk';
 import moment from 'moment';
-import { async } from 'node-stream-zip';
 import { TransferTypeEnum } from './common';
 import * as fs from 'fs-extra';
 
@@ -103,38 +102,39 @@ app.get('/axiTransfer/convert/:type/:id', async(req, res) => {
     try{
         const fileEntity = uploadFiles[id - 1];
         const filePath = fileEntity.localPath;
+
+        let fileName = '';
+        let ossFilePath = '';
+        let localFilePath = '';
+
         if(!fs.existsSync(filePath)){
             await Storage.Instance.fGetObject(fileEntity.ossPath, filePath)
         }
     
         if(transferType == TransferTypeEnum.AXI2CSV){
             const axiJson = transferAxi2Json(filePath);
-            const csvFileName = `${fileEntity.name.split(".")[0]}.csv`;
-            const csvFilePath = path.join(downloadPath, now, csvFileName);
-            transferJson2Csv(axiJson, csvFilePath);
-            const ossFilePath = path.join(buildOssPath(), now, csvFileName)
-            await Storage.Instance.fPutObject(ossFilePath, csvFilePath);
-            downloadFiles.push({
-                id: downloadFiles.length + 1,
-                name: csvFileName,
-                ossPath: ossFilePath,
-                localPath: csvFilePath,
-                time: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
-            })
+            fileName = `${fileEntity.name.split(".")[0]}.csv`;
+            localFilePath = path.join(downloadPath, now, fileName);
+            transferJson2Csv(axiJson, localFilePath);
+            ossFilePath = path.join(buildOssPath(), now, fileName)
         }else if(transferType == TransferTypeEnum.CSV2AXI){
             const csvJson = transferCsv2Json(filePath);
-            const axiFileName = `${fileEntity.name.split(".")[0]}.axi`;
-            const axiFilePath = path.join(downloadPath, now, axiFileName);
-            transferJson2Csv(csvJson, axiFilePath);
-            const ossFilePath = path.join(buildOssPath(), now, axiFileName)
-            await Storage.Instance.fPutObject(ossFilePath, axiFilePath);
-            downloadFiles.push({
-                id: downloadFiles.length + 1,
-                name: axiFileName,
-                ossPath: ossFilePath,
-                localPath: axiFilePath,
-                time: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
-            })
+            fileName = `${fileEntity.name.split(".")[0]}.axi`;
+            localFilePath = path.join(downloadPath, now, fileName);
+            transferJson2Csv(csvJson, localFilePath);
+            ossFilePath = path.join(buildOssPath(), now, fileName)
+        }else if(transferType == TransferTypeEnum.EXCEL2AXI){
+            const csvJson = await transferExcel2Json(filePath);
+            fileName = `${fileEntity.name.split(".")[0]}.axi`;
+            localFilePath = path.join(downloadPath, now, fileName);
+            transferJson2Csv(csvJson, localFilePath);
+            ossFilePath = path.join(buildOssPath(), now, fileName)
+        }else if(transferType == TransferTypeEnum.EXCEL2CSV){
+            const axiJson = await transferExcel2Json(filePath);
+            fileName = `${fileEntity.name.split(".")[0]}.csv`;
+            localFilePath = path.join(downloadPath, now, fileName);
+            transferJson2Csv(axiJson, localFilePath);
+            ossFilePath = path.join(buildOssPath(), now, fileName)
         }else{
             res.json({
                 success: false,
@@ -142,6 +142,14 @@ app.get('/axiTransfer/convert/:type/:id', async(req, res) => {
             })
             return;
         }
+        await Storage.Instance.fPutObject(ossFilePath, localFilePath);
+        downloadFiles.push({
+            id: downloadFiles.length + 1,
+            name: fileName,
+            ossPath: ossFilePath,
+            localPath: localFilePath,
+            time: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
+        })
         fileEntity.converted = true;
         res.json({
             success: true
