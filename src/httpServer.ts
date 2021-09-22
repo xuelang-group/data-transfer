@@ -84,6 +84,17 @@ app.get('/axiTransfer/delete/upload/:id', async(req, res) => {
     }
 })
 
+// 上传文件列表 文件下载
+app.get('/axiTransfer/uploadFile/download/:id', async(req, res) => {
+    const id = parseInt(req.params.id);
+    const uploadEntity = uploadFiles[id - 1];
+    const filePath = uploadEntity.localPath;
+    if(!fs.existsSync(filePath)){
+        await Storage.Instance.fGetObject(uploadEntity.ossPath, filePath);
+    }
+    res.download(filePath);
+})
+
 // 转换文件
 app.get('/axiTransfer/convert/:type/:id', async(req, res) => {
     const transferType = req.params.type;
