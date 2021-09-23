@@ -10,7 +10,7 @@
     "compile": "tsc",
     "front": "cp -r ./src/web dist/web",
     "dist": "npm run clean && npm run compile",
-    "buildImage": "npm run dist && ./build.sh"
+    "buildImage": "npm run dist && npm run front && ./build.sh"
   },
   "repository": {
     "type": "git",
