@@ -8,6 +8,7 @@
     "lint-fix": "./node_modules/.bin/eslint --fix --ext .ts,.js .",
     "clean": "rm -rf dist/*",
     "compile": "tsc",
+    "front": "cp -r ./src/web dist/web",
     "dist": "npm run clean && npm run compile",
     "buildImage": "npm run dist && ./build.sh"
   },

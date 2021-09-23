@@ -24,6 +24,8 @@ if (!fs.existsSync(uploadPath)) {
     fs.mkdirSync(uploadPath);
 }
 
+app.use(express.static(path.join(__dirname, 'web')));
+
 // 上传文件
 app.post('/axiTransfer/file/upload', fileUpload.single('originalFile'), async(req, res) => {
     console.log('upload file:', req.file);

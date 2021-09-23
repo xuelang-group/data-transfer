@@ -3,7 +3,7 @@
 set -x
 
 image=axi-data-transfer
-tag=1.1.1
+tag=1.1.3
 registry=registry.cn-shanghai.aliyuncs.com/shuzhi-amd64
 repo=${registry}/${image}:${tag}
 
