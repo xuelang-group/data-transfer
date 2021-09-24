@@ -1,8 +1,6 @@
-import csv from 'csvtojson';
 import csvjson from 'csvjson';
 import * as fs from 'fs-extra';
-import * as exceljson from 'excel-as-json';
-import { async } from 'node-stream-zip';
+import * as exceljson from 'simple-excel-to-json';
 
 function getEnv(name) {
     return process.env[name];
@@ -28,20 +26,9 @@ export function transferCsv2Json(filePath: string){
     return csvjson.toObject(file, options);
 }
 
-export async function transferExcel2Json(filePath: string): Promise<string>{
-    return new Promise((resolve, reject) => {
-        const convertExcel = exceljson.processFile;
-        let ret = '';
-        convertExcel(filePath, undefined, {
-            sheet: '1'
-        }, (err, data) => {
-            if(err){
-                console.error(err.message);
-                reject(err.message);
-            }
-            resolve(data);
-        });
-    })
+export async function transferExcel2Json(filePath: string){
+    const data = exceljson.parseXls2Json(filePath);
+    return data[0];
 }
 
 export function transferJson2Csv(jsonStr: string,filePath: string){
