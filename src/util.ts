@@ -44,17 +44,28 @@ export function transferJson2Csv(jsonStr: string,filePath: string){
     fs.writeFileSync(filePath, data);
 }
 
+export function transferAxiAndCsv(srcFilePath: string, destFilePath: string){
+    const data = fs.readFileSync(srcFilePath);
+    if (!fs.existsSync(destFilePath)){
+        fs.ensureFileSync(destFilePath);
+    }
+    fs.writeFileSync(destFilePath, data);
+}
+
 export function buildOssPath(){
     return `studio/${userId}/${appId}/${nodeId}`;
 }
 
 async function test(){
     // let pa = transferCsv2Json('/Users/luotao/Desktop/param.csv');
-    // let pa = transferAxi2Json('/Users/luotao/Desktop/test.axi');
-    let pa = await transferExcel2Json('/Users/luotao/Desktop/inputParam.xlsx');
+    let pa = transferAxi2Json('/Users/luotao/Desktop/SootIn.axi');
+    // let pa = await transferExcel2Json('/Users/luotao/Desktop/inputParam.xlsx');
     console.log(pa)
-    // transferJson2Csv(pa,'/Users/luotao/Desktop/test33/test2.csv');
+    transferJson2Csv(pa,'/Users/luotao/Desktop/test33/test3.csv');
+    // transferAxiAndCsv('/Users/luotao/Desktop/test33/test2.csv', '/Users/luotao/Desktop/test33/test2.axi');
 }
+
+test();
 
 
 

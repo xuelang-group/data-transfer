@@ -2,7 +2,7 @@ import express, { request } from 'express';
 import bodyParser from 'body-parser';
 import * as _ from 'lodash';
 import { getUploader } from './uploader';
-import { buildOssPath, transferAxi2Json, transferCsv2Json, transferExcel2Json, transferJson2Csv } from './util';
+import { buildOssPath, transferAxi2Json, transferAxiAndCsv, transferCsv2Json, transferExcel2Json, transferJson2Csv } from './util';
 import path from 'path';
 import { sp, Storage } from 'suanpan_node_sdk';
 import moment from 'moment';
@@ -114,16 +114,14 @@ app.get('/axiTransfer/convert/:type/:id', async(req, res) => {
         }
     
         if(transferType == TransferTypeEnum.AXI2CSV){
-            const axiJson = transferAxi2Json(filePath);
             fileName = `${fileEntity.name.split(".")[0]}.csv`;
             localFilePath = path.join(downloadPath, now, fileName);
-            transferJson2Csv(axiJson, localFilePath);
+            transferAxiAndCsv(filePath, localFilePath);
             ossFilePath = path.join(buildOssPath(), now, fileName)
         }else if(transferType == TransferTypeEnum.CSV2AXI){
-            const csvJson = transferCsv2Json(filePath);
             fileName = `${fileEntity.name.split(".")[0]}.axi`;
             localFilePath = path.join(downloadPath, now, fileName);
-            transferJson2Csv(csvJson, localFilePath);
+            transferAxiAndCsv(filePath, localFilePath);
             ossFilePath = path.join(buildOssPath(), now, fileName)
         }else if(transferType == TransferTypeEnum.EXCEL2AXI){
             const csvJson = await transferExcel2Json(filePath);
